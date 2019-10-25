@@ -14,7 +14,8 @@ btrfs-y += super.o ctree.o extent-tree.o print-tree.o root-tree.o dir-item.o \
 	   extent_io.o volumes.o async-thread.o ioctl.o locking.o orphan.o \
 	   export.o tree-log.o free-space-cache.o zlib.o lzo.o \
 	   compression.o delayed-ref.o relocation.o delayed-inode.o scrub.o \
-	   reada.o backref.o ulist.o qgroup.o send.o dev-replace.o raid56.o
+	   reada.o backref.o ulist.o qgroup.o send.o dev-replace.o 
+#raid56.o
 
 btrfs-$(CONFIG_BTRFS_FS_POSIX_ACL) += acl.o
 btrfs-$(CONFIG_BTRFS_FS_CHECK_INTEGRITY) += check-integrity.o
@@ -23,21 +24,22 @@ KERNELRELEASE   ?= $(shell uname -r)
 KDIR    ?= /lib/modules/${KERNELRELEASE}/build
 MDIR    ?= /lib/modules/${KERNELRELEASE}
 PWD     := $(shell pwd)
+CFLAGS_MODULE=-fno-pic -DCONFIG_BTRFS_FS_POSIX_ACL=y -DCONFIG_BTRFS_FS_CHECK_INTEGERITY=y
 
 all:
-        $(MAKE) CFLAGS_MODULE=-fno-pic -C $(KDIR) M=$(PWD) modules
+	$(MAKE) -C $(KDIR) M=$(PWD) modules
 
 clean:
-        $(MAKE) -C $(KDIR) M=$(PWD) clean
+	$(MAKE) -C $(KDIR) M=$(PWD) clean
 
 help:
-        $(MAKE) -C $(KDIR) M=$(PWD) help
+	$(MAKE) -C $(KDIR) M=$(PWD) help
 
 install: btrfs.ko
-        rm -f ${MDIR}/kernel/fs/btrfs/btrfs.ko
-        install -m644 -b -D btrfs.ko ${MDIR}/kernel/fs/btrfs/btrfs.ko
-        depmod -aq
+	rm -f ${MDIR}/kernel/fs/btrfs/btrfs.ko
+	install -m644 -b -D btrfs.ko ${MDIR}/kernel/fs/btrfs/btrfs.ko
+	depmod -aq
 
 uninstall:
-        rm -rf ${MDIR}/kernel/fs/btrfs
-        depmod -aq
+	rm -rf ${MDIR}/kernel/fs/btrfs
+	depmod -aq
